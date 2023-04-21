@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import joi from "joi";
 
 dotenv.config();
 
@@ -7,6 +8,7 @@ const port = process.env.PORT || 3000;
 
 // Initialize Express
 const app = express();
+app.use(express.json());
 
 const courses = [
   { id: 1, name: "Computer Administrator" },
@@ -34,6 +36,24 @@ app.get("/api/courses/:id", (req, res) => {
 
 app.get("/api/courses/:year/:month", (req, res) => {
   res.send(req.query);
+});
+
+app.post("/api/courses", (req, res) => {
+  const schema = joi.object({ name: joi.string().min(3).required() });
+
+  const result = schema.validate(req.body);
+
+  if (result.error) {
+    //400 Bad Request
+    res.status(400).send("Name is required and should be minimum 3 characters");
+    return;
+  }
+
+  const course = { id: courses.length + 1, name: req.body.name };
+
+  courses.push(course);
+
+  res.send(course);
 });
 
 app.listen(port, () => {
