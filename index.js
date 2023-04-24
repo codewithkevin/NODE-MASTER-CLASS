@@ -10,62 +10,34 @@ const port = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
 
-const courses = [
-  { id: 1, name: "Computer Administrator" },
-  { id: 2, name: "Earth Science" },
-  { id: 3, name: "Physics Administrator" },
+const generas = [
+  { id: 1, name: "Action" },
+  { id: 2, name: "Horror" },
+  { id: 3, name: "Comedy" },
+  { id: 4, name: "LoveSeries" },
 ];
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
+app.get("/api/generas", (req, res) => {
+  res.send(generas);
 });
 
-app.get("/api/courses", (req, res) => {
-  res.send(courses);
+app.get("/api/generas/:id", (req, res) => {
+  const genera = generas.find((c) => c.id === parseInt(req.params.id));
+
+  if (!genera)
+    return res.status(404).send("The genera with the given ID was not found");
+
+  res.send(genera);
 });
 
-app.get("/api/courses/:id", (req, res) => {
-  const course = courses.find((c) => c.id === parseInt(req.params.id));
+app.put("/api/generas/:id", (req, res) => {
+  const genera = generas.find((c) => c.id === parseInt(req.params.id));
 
-  if (!course) {
-    res.status(404).send("The course with the given ID was not found");
-    return;
-  } else {
-    res.send(course);
-  }
-});
+  if (!genera)
+    return res.status(404).send("The genera with the given ID was not found");
 
-// app.get("/api/courses/:year/:month", (req, res) => {
-//   res.send(req.query);
-// });
-
-app.post("/api/courses", (req, res) => {
   const schema = joi.object({ name: joi.string().min(3).required() });
-
   const { error } = schema.validate(req.body);
-
-  if (error) return res.status(400).send(error.details[0].message);
-
-  const course = { id: courses.length + 1, name: req.body.name };
-
-  courses.push(course);
-
-  res.send(course);
-});
-
-app.put("/api/courses/:id", (req, res) => {
-  // Look up the course
-  // If not existing, return 404
-  const course = courses.find((c) => c.id === parseInt(req.params.id));
-
-  if (!course) {
-    res.status(404).send("The course with the given ID was not found");
-    return;
-  }
-
-  // Validate the course
-  // If Invalid, return 404 - Bad Request
-  const { error } = ValidateForm(req.body);
 
   if (error) {
     //400 Bad Request
@@ -73,34 +45,9 @@ app.put("/api/courses/:id", (req, res) => {
     return;
   }
 
-  // Update course
-  // Return the updated course
-  course.name = req.body.name;
-  res.send(course);
+  genera.name = req.body.name;
+  res.send(genera);
 });
-
-app.delete("/api/courses/:id", (req, res) => {
-  // Look up the course
-  // If not existing, return 404
-  const course = courses.find((c) => c.id === parseInt(req.params.id));
-
-  if (!course) {
-    res.status(404).send("The course with the given ID was not found");
-    return;
-  }
-
-  //Delete Course
-  const index = courses.indexOf(course);
-  courses.splice(index, 1);
-
-  // Return the same course
-  res.send(course);
-});
-
-function ValidateForm(course) {
-  const schema = joi.object({ name: joi.string().min(3).required() });
-  return schema.validate(course);
-}
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
