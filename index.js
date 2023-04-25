@@ -1,7 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import joi from "joi";
-import { logger } from "./Middleware/logger";
+import { logger } from "./Middleware/logger.js";
+import helmet from "helmet";
 
 dotenv.config();
 
@@ -10,8 +11,9 @@ const port = process.env.PORT || 3000;
 // Initialize Express
 const app = express();
 app.use(express.json());
-app.ues(express.urlencode());
-
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
+app.use(helmet());
 
 app.use(logger);
 
