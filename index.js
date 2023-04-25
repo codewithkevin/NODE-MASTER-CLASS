@@ -10,6 +10,9 @@ const port = process.env.PORT || 3000;
 // Initialize Express
 const app = express();
 app.use(express.json());
+app.ues(express.urlencode());
+
+
 app.use(logger);
 
 const courses = [
