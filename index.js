@@ -4,13 +4,15 @@ import joi from "joi";
 import { logger } from "./Middleware/logger.js";
 import helmet from "helmet";
 import morgan from "morgan";
+import config from "config";
+import debug from "debug";
 
 dotenv.config();
 const app = express();
-
 const port = process.env.PORT || 3000;
-
 const state = app.get("env");
+
+const debugs = debug("app:startup");
 
 // Middleware
 app.use(express.json());
@@ -20,10 +22,13 @@ app.use(helmet());
 
 if (state === "development") {
   app.use(morgan("tiny"));
-  console.log("Morgan enabled......");
+  debugs("Morgan enabled......");
 }
 
 app.use(logger);
+
+// Configuration
+console.log("Application Name: " + config.get("name"));
 
 const courses = [
   { id: 1, name: "Computer Administrator" },
