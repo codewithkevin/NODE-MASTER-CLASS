@@ -1,51 +1,7 @@
 import express from "express";
-import dotenv from "dotenv";
-import joi from "joi";
-import { logger } from "./Middleware/logger.js";
-import helmet from "helmet";
-import morgan from "morgan";
-import config from "config";
-import debug from "debug";
-
-dotenv.config();
-const app = express();
-const port = process.env.PORT || 3000;
-const state = app.get("env");
-
-const debugs = debug("app:startup");
-
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
-app.use(helmet());
-
-if (state === "development") {
-  app.use(morgan("tiny"));
-  debugs("Morgan enabled......");
-}
-
-app.use(logger);
-
-// Configuration
-console.log("Application Name: " + config.get("name"));
-
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
-
-
-import express from "express";
-import dotenv from "dotenv";
 import joi from "joi";
 
-dotenv.config();
-
-const port = process.env.PORT || 3000;
-
-// Initialize Express
-const app = express();
-app.use(express.json());
+const subjects = express.Router();
 
 const courses = [
   { id: 1, name: "Computer Administrator" },
@@ -53,15 +9,13 @@ const courses = [
   { id: 3, name: "Physics Administrator" },
 ];
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-app.get("/api/courses", (req, res) => {
+//Get All Courses
+subjects.get("/", (req, res) => {
   res.send(courses);
 });
 
-app.get("/api/courses/:id", (req, res) => {
+//Get Course
+subjects.get("/:id", (req, res) => {
   const course = courses.find((c) => c.id === parseInt(req.params.id));
 
   if (!course) {
@@ -72,11 +26,12 @@ app.get("/api/courses/:id", (req, res) => {
   }
 });
 
-// app.get("/api/courses/:year/:month", (req, res) => {
+// subjects.get("/api/courses/:year/:month", (req, res) => {
 //   res.send(req.query);
 // });
 
-app.post("/api/courses", (req, res) => {
+//Create a course
+subjects.post("/", (req, res) => {
   const schema = joi.object({ name: joi.string().min(3).required() });
 
   const { error } = schema.validate(req.body);
@@ -90,7 +45,8 @@ app.post("/api/courses", (req, res) => {
   res.send(course);
 });
 
-app.put("/api/courses/:id", (req, res) => {
+//Update a Course
+subjects.put("/:id", (req, res) => {
   // Look up the course
   // If not existing, return 404
   const course = courses.find((c) => c.id === parseInt(req.params.id));
@@ -116,7 +72,8 @@ app.put("/api/courses/:id", (req, res) => {
   res.send(course);
 });
 
-app.delete("/api/courses/:id", (req, res) => {
+//Delete the course
+subjects.delete("/api/courses/:id", (req, res) => {
   // Look up the course
   // If not existing, return 404
   const course = courses.find((c) => c.id === parseInt(req.params.id));
@@ -139,6 +96,4 @@ function ValidateForm(course) {
   return schema.validate(course);
 }
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
+export default subjects;
